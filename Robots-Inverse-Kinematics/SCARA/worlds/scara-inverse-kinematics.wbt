@@ -1,0 +1,29 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/epson/scara_t6/protos/ScaraT6.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation -0.2190577749605127 0.22292732827977627 0.949903730667161 1.6046870598337581
+  position -0.05471165891524277 -3.1659849721545634 2.1125702483321653
+}
+TexturedBackground {
+  texture "empty_office"
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 3 3
+}
+ScaraT6 {
+  controller "scara-forward-kinematics-random-point-generator"
+  staticBase TRUE
+  handSlot [
+    GPS {
+    }
+  ]
+}
