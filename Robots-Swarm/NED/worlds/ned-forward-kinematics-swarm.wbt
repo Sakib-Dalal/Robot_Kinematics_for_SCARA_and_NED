@@ -4,12 +4,14 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
 EXTERNPROTO "../protos/NedWithGPS.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Parquetry.proto"
 
 WorldInfo {
+  basicTimeStep 8
 }
 Viewpoint {
-  orientation -0.38653802841222407 -0.0007247596525984868 0.922273184753106 3.14505117863815
-  position 3.3826878016611253 -0.057104542295100834 3.204234758989511
+  orientation 0.2649045291942833 0.11683992013345626 -0.9571697986645644 2.3426445567628917
+  position 7.623186271428376 8.260641319366082 6.115150047928791
 }
 TexturedBackground {
   texture "empty_office"
@@ -17,8 +19,183 @@ TexturedBackground {
 TexturedBackgroundLight {
 }
 RectangleArena {
-  floorSize 3 3
+  floorSize 9 9
+  floorAppearance Parquetry {
+    type "light strip"
+    colorOverride 0 0 0
+  }
 }
 NedWithGPS {
-  controller "ned-forward-kinematics-random-point-generator"
+  translation -3 0 0
+  name "Ned(13)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation -3 -1.5 0
+  name "Ned(14)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation -3 -3 0
+  name "Ned(24)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation 0 0 0
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation 1.5 0 0
+  name "Ned(3)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation 3 0 0
+  name "Ned(9)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation 3 1.5 0
+  name "Ned(10)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation 3 3 0
+  name "Ned(16)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation 3 -1.5 0
+  name "Ned(11)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation 3 -3 0
+  name "Ned(20)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation 1.5 -3 0
+  name "Ned(21)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation 0 -3 0
+  name "Ned(22)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation 1.5 1.5 0
+  name "Ned(8)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation 1.5 3 0
+  name "Ned(15)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation 1.5 -1.5 0
+  name "Ned(7)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation -1.5 0 0
+  name "Ned(4)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation -1.5 -1.5 0
+  name "Ned(6)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation -1.5 -3 0
+  name "Ned(23)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation -1.5 1.5 0
+  name "Ned(5)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation -1.5 3 0
+  name "Ned(18)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation -3 1.5 0
+  name "Ned(12)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation -3 3 0
+  name "Ned(19)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation 0 1.5 0
+  name "Ned(1)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation 0 3 0
+  name "Ned(17)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+}
+NedWithGPS {
+  translation 0 -1.5 0
+  name "Ned(2)"
+  controller "ned-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
 }
