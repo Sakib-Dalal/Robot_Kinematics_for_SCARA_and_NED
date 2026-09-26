@@ -4,7 +4,7 @@ Webots simulations for exploring robot kinematics with a **Niryo NED** arm and a
 
 The forward-kinematics experiments command joint positions and measure the resulting hand position with a simulated GPS sensor. The swarm collection routines pair measured joint positions with hand coordinates relative to each robot's base and save them to CSV.
 
-[Media](#media) · [Project structure](#project-structure) · [Getting started](#getting-started) · [Datasets](#datasets) · [Configuration](#configuration) · [Tests](#tests) · [Current limitations](#current-limitations)
+[Media](#media) · [Project structure](#project-structure) · [Version control](#version-control) · [Getting started](#getting-started) · [Datasets](#datasets) · [Configuration](#configuration) · [Tests](#tests) · [Current limitations](#current-limitations)
 
 ## Project overview
 
@@ -56,6 +56,7 @@ Press **Play** to watch either recording directly in a Markdown viewer that supp
 
 ```text
 Robotics-01/
+├── .gitignore                          # Local settings, caches, and test outputs
 ├── README.md
 ├── media/                              # Four screenshots and two swarm recordings
 ├── Robots-Forward-Kinematics/
@@ -105,6 +106,14 @@ Each robot folder is a separate Webots project:
 
 Webots workspace settings, preview files, and operating-system metadata are omitted from the tree.
 
+## Version control
+
+The root [`.gitignore`](.gitignore) excludes operating-system metadata, Python caches and virtual environments, local editor settings, logs, and Webots' hidden workspace settings and generated world thumbnails. These files can remain on your computer without appearing as project changes.
+
+The rules also ignore `ned_dataset.csv` and `scara_dataset.csv` **at the repository root**, where the regression tests can write temporary samples. The datasets inside the swarm controller folders, all screenshots and videos in `media/`, Python controllers, `.wbt` worlds, and `.proto` models remain tracked.
+
+Normal swarm runs append to the tracked controller-folder datasets, so those changes still appear in Git. Set a different `CSV_FILENAME` before collecting a separate run if you want to preserve the supplied datasets.
+
 ## Getting started
 
 ### Requirements
@@ -143,6 +152,8 @@ Open one of the swarm worlds listed above and press **Run**. Every robot launche
 5. Holds the final pose after reaching its sample count while the other robots finish.
 
 The default is **1,000 accepted samples per robot**, giving **25,000 new rows per complete swarm run**. The writer appends to existing files. To keep a run separate, set a new `CSV_FILENAME` before launching the controllers.
+
+See the [NED guide](Robots-Swarm/NED/README.md) and [SCARA guide](Robots-Swarm/SCARA/README.md) for robot-specific simulation settings, output details, and regression checks.
 
 ## Datasets
 
@@ -217,7 +228,6 @@ The tests exercise coordinate transforms, settling checks, timeouts, completion,
 
 - **Inverse kinematics is unfinished.** The [NED](Robots-Inverse-Kinematics/NED/worlds/ned-inverse-kinematics.wbt) and [SCARA](Robots-Inverse-Kinematics/SCARA/worlds/scara-inverse-kinematics.wbt) starter worlds still reference forward-kinematics controller names, but those controllers are absent from their own project folders.
 - **The single-robot examples need cleanup.** The SCARA fixed-target controller uses `q3 = -1.0 m`; its random generator has an outdated millimetre comment and a NED label in its output.
-- **Some robot-specific documentation predates CSV support.** The [NED notes](Robots-Swarm/NED/README.md) and [SCARA notes](Robots-Swarm/SCARA/README.md) provide additional simulation detail, but their console-only descriptions and test paths are outdated. Use this README for the current output format and repository-root test commands.
 
 ## Model credits
 

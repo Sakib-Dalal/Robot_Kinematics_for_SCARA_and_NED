@@ -1,8 +1,12 @@
 # SCARA swarm data generator
 
-Open `worlds/scara-forward-kinematics-swarm.wbt` in Webots R2025a and press Run.
+[Project overview and media](../../README.md#media)
+
+Open [scara-forward-kinematics-swarm.wbt](worlds/scara-forward-kinematics-swarm.wbt)
+in Webots R2025a and press **Run**.
 After editing the world, controller, or robot model, reload the world to restart
 all robots with the new settings.
+Use Python 3 on macOS or Linux; the CSV writer uses the Unix-only `fcntl` module.
 
 The world contains **25 SCARA robots in a 5 x 5 grid**, spaced 1.5 metres apart
 on a 9 x 9 metre floor. Each base is fixed with its origin at world Z = 0.
@@ -18,12 +22,13 @@ Its numbered comments follow five steps:
 1. Connect to the motors, joint sensors, GPS, and robot base.
 2. Choose random positions for the two arm joints and vertical slide.
 3. Wait until all four joints reach their targets and the hand stops moving.
-4. Convert the GPS reading to the robot's coordinates and print the data point.
+4. Convert the GPS reading to the robot's coordinates, save the data point, and print it.
 5. Hold the final pose while the other robots finish.
 
 Change `loop_value` near the top to choose the number of accepted data points
 **per robot**. The default is 1000 per robot, or 25,000 for the whole swarm.
-Data is printed to the Webots console; the controller does not save a CSV file.
+Accepted samples are appended to a shared CSV file and printed to the Webots
+console. Set `CSV_FILENAME` to choose the output file.
 
 ## Joint settings
 
@@ -64,8 +69,9 @@ collection with an error. Reload the world after a simulation fault.
 
 ## Understanding the output
 
-Each line contains the robot's name, three requested joint positions, three
-**measured** joint positions, and hand XYZ in metres. The joint order is always
+Each sample line contains the robot's name, sample count, three **measured**
+joint positions, and hand XYZ in metres. Requested targets are not included in
+the current sample line. The joint order is always
 base arm rotation, elbow rotation, then vertical slide: `(rad, rad, m)`.
 Pair the measured joint values with the printed XYZ when using the data.
 
@@ -77,21 +83,53 @@ Robots in different grid positions therefore use the same coordinate convention.
 For the unrotated bases on the floor, printed Z is the hand-slot height above the
 floor. No extra grid or height offset should be subtracted.
 
+## CSV dataset
+
+The included [scara_dataset.csv](controllers/scara-swarm-data-generator/scara_dataset.csv)
+contains 25,000 data rows. The default filename is `scara_dataset.csv`, relative
+to the controller's working directory, normally the controller folder in Webots.
+All 25 arms append to the same file using an exclusive file lock, with one header:
+
+```csv
+is_scara,is_ned,q1,q2,q3,x,y,z
+```
+
+SCARA rows use `is_scara=1` and `is_ned=0`. `q1` and `q2` are measured angles
+in radians, `q3` is the measured slide position in metres, and XYZ is in metres
+relative to the base. The CSV does not include a robot-instance name, timestamp,
+or run identifier.
+
+The default 1,000 samples per robot add 25,000 rows when every arm completes.
+Existing data is preserved and appended to on later runs. Change `CSV_FILENAME`
+before starting a separate collection if you want to preserve the included dataset.
+The repository's [ignore rules](../../.gitignore) keep this controller-folder
+dataset tracked while ignoring the same filename at the repository root,
+where regression tests can create temporary samples.
+
 ## Checks
 
-Run the controller checks without opening Webots:
+Run the controller checks from the repository root without opening Webots:
 
 ```sh
-python3 -B -m unittest discover -s SCARA/tests -v
+python3 -B -m unittest discover -s Robots-Swarm/SCARA/tests -v
 ```
 
 These cover coordinate conversion, movement settling, slide-specific units and
 tolerances, shaft rotation, failure handling, missing devices, and completion.
+Collection tests can append CSV samples in the working directory; use a temporary
+working directory and an absolute test path to isolate them. The suite currently
+has failures involving console/error messages and shutdown motor-command counts.
+See the [recorded test results](../../README.md#tests).
 
-Validated in Webots R2025a with **100 poses per robot (2500 samples total)**:
+### Historical simulation validation
+
+Earlier project notes report a Webots R2025a run with
+**100 poses per robot (2500 samples total)**:
 all eight range corners, a 5 x 5 arm-joint sweep with the slide at -0.075 m,
 then 67 seeded random poses per robot. All robots completed with no rejected
 movements. Contact checks at every 8 ms step detected no collisions, and the
 hand GPS stayed at least 0.0305 m above the floor throughout the run.
 The 33 shared poses produced matching base-relative XYZ to six decimal places
-across all 25 grid positions. All 25 controller checks passed as well.
+across all 25 grid positions. Those notes also reported 25 passing controller
+checks at that time. This is a record of that earlier run, not a fresh validation
+of the current controller revision; the current test status is described above.

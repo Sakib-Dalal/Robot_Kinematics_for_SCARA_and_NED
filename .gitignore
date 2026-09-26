@@ -1,0 +1,34 @@
+# Operating-system metadata
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+
+# Python bytecode, virtual environments, and tool caches
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Local editor settings and temporary files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.log
+
+# Webots local workspace settings and generated world thumbnails
+**/worlds/.*.wbproj
+**/worlds/.*.jpg
+
+# CSV files created by tests run from the repository root.
+# Keep the datasets under Robots-Swarm/ and all media/ assets tracked.
+/ned_dataset.csv
+/scara_dataset.csv
