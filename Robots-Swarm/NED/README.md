@@ -4,6 +4,23 @@ Open `worlds/ned-forward-kinematics-swarm.wbt` in Webots R2025a. After changing
 the world or PROTO, **reload the world** so Webots loads the new physics and
 motor settings. Reloading restarts the simulation and controllers.
 
+## Reading the controller
+
+Start at `run(robot)` in
+`controllers/ned-swarm-data-generator/ned-swarm-data-generator.py`.
+Its numbered comments follow the main steps: connect to the devices, choose
+random angles, wait for the arm to stop, print a data point, and hold the final pose.
+Each robot runs its own copy of this controller.
+
+- Change `loop_value` near the top to choose the number of data points per robot.
+- `wait_until_settled()` checks the measured angles and movement before accepting a pose.
+- `position_in_base_frame()` converts the hand GPS position into coordinates
+  measured from that robot's base. `Supervisor` supplies the base position and rotation.
+
+The controller prints data to the Webots console. It does not save a file.
+
+## Simulation and data collection
+
 The 25 arms sit directly on the floor, with every robot base at **world Z = 0**.
 They use a 1.5 m grid and an 8 ms physics timestep. There are no raised mounts.
 Self-collision detection is enabled on every robot. The gripper sliders have

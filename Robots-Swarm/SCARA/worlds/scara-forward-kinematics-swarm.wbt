@@ -3,13 +3,15 @@
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/epson/scara_t6/protos/ScaraT6.proto"
+EXTERNPROTO "../protos/ScaraWithGPS.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Parquetry.proto"
 
 WorldInfo {
+  basicTimeStep 8
 }
 Viewpoint {
-  orientation -0.2190577749605127 0.22292732827977627 0.949903730667161 1.6046870598337581
-  position -0.05471165891524277 -3.1659849721545634 2.1125702483321653
+  orientation 0.2649045291942833 0.11683992013345626 -0.9571697986645644 2.3426445567628917
+  position 7.623186271428376 8.260641319366082 6.115150047928791
 }
 TexturedBackground {
   texture "empty_office"
@@ -17,13 +19,208 @@ TexturedBackground {
 TexturedBackgroundLight {
 }
 RectangleArena {
-  floorSize 3 3
+  floorSize 9 9
+  floorAppearance Parquetry {
+    type "light strip"
+    colorOverride 0 0 0
+  }
 }
-ScaraT6 {
-  controller "scara-forward-kinematics-random-point-generator"
+DEF SCARA_01 ScaraWithGPS {
+  translation -3 -3 0
+  name "SCARA(1)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
   staticBase TRUE
-  handSlot [
-    GPS {
-    }
-  ]
+}
+DEF SCARA_02 ScaraWithGPS {
+  translation -1.5 -3 0
+  name "SCARA(2)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_03 ScaraWithGPS {
+  translation 0 -3 0
+  name "SCARA(3)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_04 ScaraWithGPS {
+  translation 1.5 -3 0
+  name "SCARA(4)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_05 ScaraWithGPS {
+  translation 3 -3 0
+  name "SCARA(5)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_06 ScaraWithGPS {
+  translation -3 -1.5 0
+  name "SCARA(6)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_07 ScaraWithGPS {
+  translation -1.5 -1.5 0
+  name "SCARA(7)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_08 ScaraWithGPS {
+  translation 0 -1.5 0
+  name "SCARA(8)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_09 ScaraWithGPS {
+  translation 1.5 -1.5 0
+  name "SCARA(9)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_10 ScaraWithGPS {
+  translation 3 -1.5 0
+  name "SCARA(10)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_11 ScaraWithGPS {
+  translation -3 0 0
+  name "SCARA(11)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_12 ScaraWithGPS {
+  translation -1.5 0 0
+  name "SCARA(12)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_13 ScaraWithGPS {
+  name "SCARA(13)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_14 ScaraWithGPS {
+  translation 1.5 0 0
+  name "SCARA(14)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_15 ScaraWithGPS {
+  translation 3 0 0
+  name "SCARA(15)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_16 ScaraWithGPS {
+  translation -3 1.5 0
+  name "SCARA(16)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_17 ScaraWithGPS {
+  translation -1.5 1.5 0
+  name "SCARA(17)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_18 ScaraWithGPS {
+  translation 0 1.5 0
+  name "SCARA(18)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_19 ScaraWithGPS {
+  translation 1.5 1.5 0
+  name "SCARA(19)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_20 ScaraWithGPS {
+  translation 3 1.5 0
+  name "SCARA(20)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_21 ScaraWithGPS {
+  translation -3 3 0
+  name "SCARA(21)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_22 ScaraWithGPS {
+  translation -1.5 3 0
+  name "SCARA(22)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_23 ScaraWithGPS {
+  translation 0 3 0
+  name "SCARA(23)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_24 ScaraWithGPS {
+  translation 1.5 3 0
+  name "SCARA(24)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
+}
+DEF SCARA_25 ScaraWithGPS {
+  translation 3 3 0
+  name "SCARA(25)"
+  controller "scara-swarm-data-generator"
+  supervisor TRUE
+  selfCollision TRUE
+  staticBase TRUE
 }

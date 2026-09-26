@@ -1,4 +1,4 @@
-"""Move each NED arm to random poses and print its joint angles and hand position.
+"""Move each SCARA arm to random poses and print its joint positions and hand position.
 
 Start with run() below to follow the main steps. The two helper functions handle
 waiting for the arm to stop and converting the hand position to the robot's axes.
@@ -10,18 +10,33 @@ import random
 # Number of accepted data points to print for EACH robot.
 loop_value = 1000
 
-# Random angle limits in radians, chosen to keep the hand clear of the floor/base.
-# Joints 4, 5, and 6 stay at zero throughout collection.
-ROTATION_LIMITS = (
-    (-2.7, 2.7),  # Joint 1: base rotation
-    (-0.7, 0.4),  # Joint 2: shoulder
-    (-1.4, 0.8),  # Joint 3: elbow
+# The first two joints rotate. The third joint slides vertically.
+# Negative slide values lower the hand. Stop at -0.15 m to clear the floor.
+JOINT_LIMITS = (
+    (-0.73, 0.73),  # Joint 1: base arm rotation, in radians.
+    (-0.83, 0.83),  # Joint 2: elbow rotation, in radians.
+    (-0.15, 0.0),  # Joint 3: vertical slide, in METRES (not millimetres).
 )
-JOINT_NAMES = ("joint_1", "joint_2", "joint_3", "joint_4", "joint_5", "joint_6")
 
-# A reading is accepted only when the arm reaches its target and stays nearly still.
-JOINT_TOLERANCE = 0.005  # Allowed angle error, in radians.
-JOINT_SPEED_TOLERANCE = 0.01  # Maximum joint speed counted as still, in radians/s.
+# The fourth motor rotates the shaft. We hold it at zero for this 3-input dataset.
+# All these lists use the same order: base arm, elbow, vertical slide, shaft rotation.
+JOINT_NAMES = (
+    "base_arm_motor",
+    "arm_motor",
+    "shaft_linear_motor",
+    "shaft_rotation_motor",
+)
+SENSOR_NAMES = (
+    "base_arm_position",
+    "arm_position",
+    "shaft_linear_position",
+    "shaft_rotation_position",
+)
+MOTOR_SPEEDS = (0.5, 0.5, 0.05, 0.5)  # rad/s, rad/s, m/s, rad/s.
+
+# The slide needs its own tolerances because its readings are in metres.
+JOINT_TOLERANCES = (0.005, 0.005, 0.0005, 0.005)  # rad, rad, m, rad.
+JOINT_SPEED_TOLERANCES = (0.01, 0.01, 0.001, 0.01)  # rad/s, rad/s, m/s, rad/s.
 HAND_SPEED_TOLERANCE = 0.001  # Maximum hand speed counted as still, in metres/s.
 SETTLE_TIME_MS = 500  # Stay still for half a second before recording.
 MOVE_TIMEOUT_MS = 20000  # Give each movement up to 20 seconds.
@@ -55,10 +70,10 @@ def position_in_base_frame(world_position, base_position, base_orientation):
     return x, y, z
 
 
-def wait_until_settled(robot, timestep, joint_sensors, gps, target_angles):
-    """Wait for the target pose; return (status, hand position, measured angles)."""
+def wait_until_settled(robot, timestep, joint_sensors, gps, target_positions):
+    """Wait for the target pose; return (status, hand position, measured joint positions)."""
     previous_hand_position = None
-    previous_joint_angles = None
+    previous_joint_positions = None
     still_time_ms = 0
     elapsed_ms = 0
     seconds_per_step = timestep / 1000.0
@@ -69,22 +84,22 @@ def wait_until_settled(robot, timestep, joint_sensors, gps, target_angles):
             return "stopped", None, None
         elapsed_ms += timestep
 
-        # Read the hand GPS and all six joint sensors.
+        # Read the hand GPS and all four joint sensors.
         hand_position = tuple(gps.getValues())
-        joint_angles = []
+        joint_positions = []
         for sensor in joint_sensors:
-            joint_angles.append(sensor.getValue())
-        joint_angles = tuple(joint_angles)
+            joint_positions.append(sensor.getValue())
+        joint_positions = tuple(joint_positions)
 
-        for value in hand_position + joint_angles:
+        for value in hand_position + joint_positions:
             if not math.isfinite(value):
-                return "invalid sensor readings", hand_position, joint_angles
+                return "invalid sensor readings", hand_position, joint_positions
 
-        # Check 1: every joint must be close to its requested angle.
+        # Check 1: every joint must be close to its requested position.
         at_target = True
-        for index in range(len(joint_angles)):
-            angle_error = abs(joint_angles[index] - target_angles[index])
-            if angle_error > JOINT_TOLERANCE:
+        for index in range(len(joint_positions)):
+            position_error = abs(joint_positions[index] - target_positions[index])
+            if position_error > JOINT_TOLERANCES[index]:
                 at_target = False
 
         # Check 2: the hand AND joints must have almost stopped moving.
@@ -95,10 +110,10 @@ def wait_until_settled(robot, timestep, joint_sensors, gps, target_angles):
             hand_speed = hand_distance / seconds_per_step
             is_still = hand_speed <= HAND_SPEED_TOLERANCE
 
-            for index in range(len(joint_angles)):
-                angle_change = abs(joint_angles[index] - previous_joint_angles[index])
-                joint_speed = angle_change / seconds_per_step
-                if joint_speed > JOINT_SPEED_TOLERANCE:
+            for index in range(len(joint_positions)):
+                position_change = abs(joint_positions[index] - previous_joint_positions[index])
+                joint_speed = position_change / seconds_per_step
+                if joint_speed > JOINT_SPEED_TOLERANCES[index]:
                     is_still = False
 
         # Both checks must pass continuously for half a second.
@@ -107,12 +122,12 @@ def wait_until_settled(robot, timestep, joint_sensors, gps, target_angles):
         else:
             still_time_ms = 0
         previous_hand_position = hand_position
-        previous_joint_angles = joint_angles
+        previous_joint_positions = joint_positions
 
         if still_time_ms >= SETTLE_TIME_MS:
-            return "settled", hand_position, joint_angles
+            return "settled", hand_position, joint_positions
 
-    return "timeout", hand_position, joint_angles
+    return "timeout", hand_position, joint_positions
 
 
 def run(robot):
@@ -129,19 +144,20 @@ def run(robot):
     base_node = robot.getSelf()
     motors = []
     joint_sensors = []
-    for joint_name in JOINT_NAMES:
+    for index in range(len(JOINT_NAMES)):
+        joint_name = JOINT_NAMES[index]
         motor = robot.getDevice(joint_name)
-        sensor = robot.getDevice(f"{joint_name}_sensor")
+        sensor = robot.getDevice(SENSOR_NAMES[index])
         if motor is None or sensor is None:
             raise RuntimeError(f"[{name}] Missing motor or sensor for {joint_name}.")
-        motor.setVelocity(0.5)  # Radians per second.
+        motor.setVelocity(MOTOR_SPEEDS[index])
         sensor.enable(timestep)
         motors.append(motor)
         joint_sensors.append(sensor)
 
     gps = robot.getDevice("gps")
     if gps is None:
-        raise RuntimeError(f"[{name}] Missing GPS. Reload the NedWithGPS world.")
+        raise RuntimeError(f"[{name}] Missing GPS. Reload the ScaraWithGPS world.")
     gps.enable(timestep)
 
     sample_count = 0
@@ -150,18 +166,18 @@ def run(robot):
     # Allow extra attempts when a pose fails, but never retry forever.
     max_attempts = loop_value * 3
     for attempt in range(1, max_attempts + 1):
-        # 2. Choose random angles for joints 1-3. Keep joints 4-6 at zero.
-        target_angles = []
-        for minimum, maximum in ROTATION_LIMITS:
-            target_angles.append(random.uniform(minimum, maximum))
-        target_angles.extend([0.0, 0.0, 0.0])
+        # 2. Choose positions for the two arm joints and slide. Hold shaft rotation at zero.
+        target_positions = []
+        for minimum, maximum in JOINT_LIMITS:
+            target_positions.append(random.uniform(minimum, maximum))
+        target_positions.append(0.0)
 
         for index in range(len(motors)):
-            motors[index].setPosition(target_angles[index])
+            motors[index].setPosition(target_positions[index])
 
-        # 3. Wait until the arm reaches those angles and stops moving.
-        status, hand_position, joint_angles = wait_until_settled(
-            robot, timestep, joint_sensors, gps, target_angles
+        # 3. Wait until the arm reaches those positions and stops moving.
+        status, hand_position, joint_positions = wait_until_settled(
+            robot, timestep, joint_sensors, gps, target_positions
         )
         if status == "stopped":
             return
@@ -169,12 +185,12 @@ def run(robot):
             # Skip this pose so an unfinished movement never becomes a data point.
             rejected_count += 1
             consecutive_failures += 1
-            angle_errors = []
-            for index in range(len(joint_angles)):
-                angle_errors.append(joint_angles[index] - target_angles[index])
+            position_errors = []
+            for index in range(len(joint_positions)):
+                position_errors.append(joint_positions[index] - target_positions[index])
             print(
                 f"[{name}] Rejected attempt {attempt}: {status}; "
-                f"targets={tuple(target_angles)}, joint_errors={tuple(angle_errors)}, "
+                f"targets={tuple(target_positions)}, joint_errors={tuple(position_errors)}, "
                 f"world_GPS={hand_position}",
                 flush=True,
             )
@@ -199,9 +215,11 @@ def run(robot):
         # .6f displays each number with six digits after the decimal point.
         print(
             f"[{name}] Iteration {sample_count}/{loop_value} - "
-            f"Targets: ({target_angles[0]:.6f}, {target_angles[1]:.6f}, {target_angles[2]:.6f}) | "
-            f"Measured joints: ({joint_angles[0]:.6f}, {joint_angles[1]:.6f}, {joint_angles[2]:.6f}) | "
-            f"Ned Final Position (base frame, m) -> "
+            f"Targets (rad, rad, m): "
+            f"({target_positions[0]:.6f}, {target_positions[1]:.6f}, {target_positions[2]:.6f}) | "
+            f"Measured joints (rad, rad, m): "
+            f"({joint_positions[0]:.6f}, {joint_positions[1]:.6f}, {joint_positions[2]:.6f}) | "
+            f"Scara Final Position (base frame, m) -> "
             f"X: {x:.6f}, Y: {y:.6f}, Z: {z:.6f}",
             flush=True,
         )
