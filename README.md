@@ -26,6 +26,8 @@ Each swarm world has 25 independently controlled robots, 1.5 m spacing, a 9 × 9
 
 ### NED swarm
 
+![Twenty-five NED arms in the Webots swarm world](media/ned-forward-kinematics-swarm.png)
+
 <video controls playsinline preload="metadata" width="800" poster="media/ned-forward-kinematics-swarm.png">
   <source src="media/ned-forward-kinematics-swarm_1.mp4" type="video/mp4">
   <a href="media/ned-forward-kinematics-swarm_1.mp4">
@@ -36,6 +38,8 @@ Each swarm world has 25 independently controlled robots, 1.5 m spacing, a 9 × 9
 [Watch or download the NED swarm video (MP4)](media/ned-forward-kinematics-swarm_1.mp4).
 
 ### SCARA swarm
+
+![Twenty-five SCARA arms in the Webots swarm world](media/scara-forward-kinematics-swarm.png)
 
 <video controls playsinline preload="metadata" width="800" poster="media/scara-forward-kinematics-swarm.png">
   <source src="media/scara-forward-kinematics-swarm.mp4" type="video/mp4">
