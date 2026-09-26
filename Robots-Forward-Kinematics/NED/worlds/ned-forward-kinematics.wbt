@@ -1,0 +1,24 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "../protos/NedWithGPS.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation -0.38653802841222407 -0.0007247596525984868 0.922273184753106 3.14505117863815
+  position 3.3826878016611253 -0.057104542295100834 3.204234758989511
+}
+TexturedBackground {
+  texture "empty_office"
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 3 3
+}
+NedWithGPS {
+  controller "ned-forward-kinematics-random-point-generator"
+}
