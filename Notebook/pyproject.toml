@@ -9,5 +9,8 @@ dependencies = [
     "matplotlib>=3.11.2",
     "numpy>=2.5.3",
     "pandas>=3.0.6",
+    "safetensors>=0.8.0",
     "scikit-learn>=1.9.1",
+    "seaborn>=0.13.2",
+    "torch>=2.14.0",
 ]
