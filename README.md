@@ -1,6 +1,6 @@
 # Robotics-01
 
-Webots simulations for exploring robot kinematics with a **Niryo NED** arm and an **Epson SCARA T6** robot. The project includes single-robot forward-kinematics experiments, parallel data collection with 25 robots, and starter worlds for inverse-kinematics work.
+Webots simulations for exploring robot kinematics with a **Niryo NED** arm and an **Epson SCARA T6** robot. The project includes single-robot forward-kinematics experiments, parallel data collection with 25 robots, and inverse-kinematics controllers that use a trained neural network.
 
 The forward-kinematics experiments command joint positions and measure the resulting hand position with a simulated GPS sensor. The swarm collection routines pair measured joint positions with hand coordinates relative to each robot's base and save them to CSV.
 
@@ -12,7 +12,7 @@ The forward-kinematics experiments command joint positions and measure the resul
 | --- | --- | --- |
 | Forward kinematics | One NED or SCARA robot, fixed-target controllers, and random-point generators | Implemented; worlds select the random-point generators by default |
 | Swarm data collection | Separate NED and SCARA worlds, each with a 5 × 5 grid of robots | Collection routines, CSV export, and datasets included |
-| Inverse kinematics | NED and SCARA world layouts | Starter files; inverse-kinematics controllers are not implemented |
+| Inverse kinematics | NED and SCARA controllers with blue target balls | Load the saved notebook model and predict joints; see the [inverse-kinematics guide](Robots-Inverse-Kinematics/README.md) |
 
 Each swarm world has 25 independently controlled robots, 1.5 m spacing, a 9 × 9 m floor, and an 8 ms physics timestep. Here, “swarm” means parallel sampling by multiple arms; the controllers do not implement coordination between robots.
 
@@ -73,10 +73,13 @@ Robotics-01/
 │       │   └── scara-forward-kinematics-random-point-generator/
 │       └── worlds/scara-forward-kinematics.wbt
 ├── Robots-Inverse-Kinematics/
+│   ├── README.md
 │   ├── NED/
+│   │   ├── controllers/ned-inverse-kinematics-controller/
 │   │   ├── protos/NedWithGPS.proto
 │   │   └── worlds/ned-inverse-kinematics.wbt
 │   └── SCARA/
+│       ├── controllers/scara-inverse-kinematics-controller/
 │       └── worlds/scara-inverse-kinematics.wbt
 └── Robots-Swarm/
     ├── NED/
@@ -119,7 +122,7 @@ Normal swarm runs append to the tracked controller-folder datasets, so those cha
 ### Requirements
 
 - **[Webots R2025a](https://github.com/cyberbotics/webots/releases/tag/R2025a)**, matching the version declared by the worlds and robot models.
-- **Python 3**, configured as the Python interpreter used by Webots. Controllers use the Webots `controller` API and Python's standard library; no additional Python packages are required by the current code.
+- **Python 3**, configured as the Python interpreter used by Webots. Forward-kinematics and swarm controllers use the Webots `controller` API and Python's standard library. Inverse-kinematics controllers use the packages installed in `Notebook/.venv` and the trained files in `Notebook/Models`; see the [setup guide](Robots-Inverse-Kinematics/README.md).
 - **An internet connection on first load**, because the worlds and local robot definitions reference versioned Webots models, meshes, and textures online.
 - **macOS or Linux for the swarm controllers and their tests.** CSV writing uses Python's Unix-only [`fcntl`](https://docs.python.org/3/library/fcntl.html) module; native Windows requires a replacement for this locking mechanism.
 
@@ -226,7 +229,7 @@ The tests exercise coordinate transforms, settling checks, timeouts, completion,
 
 ## Current limitations
 
-- **Inverse kinematics is unfinished.** The [NED](Robots-Inverse-Kinematics/NED/worlds/ned-inverse-kinematics.wbt) and [SCARA](Robots-Inverse-Kinematics/SCARA/worlds/scara-inverse-kinematics.wbt) starter worlds still reference forward-kinematics controller names, but those controllers are absent from their own project folders.
+- **Learned inverse kinematics is approximate.** The [NED](Robots-Inverse-Kinematics/NED/worlds/ned-inverse-kinematics.wbt) and [SCARA](Robots-Inverse-Kinematics/SCARA/worlds/scara-inverse-kinematics.wbt) worlds use the saved notebook model to aim at a blue ball. The controllers report the remaining position error; they do not correct it using GPS feedback.
 - **The single-robot examples need cleanup.** The SCARA fixed-target controller uses `q3 = -1.0 m`; its random generator has an outdated millimetre comment and a NED label in its output.
 
 ## Model credits
