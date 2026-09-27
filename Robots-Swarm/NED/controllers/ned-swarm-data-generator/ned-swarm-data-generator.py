@@ -5,6 +5,7 @@ import random
 import csv
 import os
 import fcntl
+from pathlib import Path
 
 
 # -------------------------------------------------
@@ -53,7 +54,14 @@ IS_NED = True
 # Shared CSV
 # -------------------------------------------------
 
-CSV_FILENAME = "ned_dataset.csv"
+CSV_FILENAME = "ned_dataset-test.csv"
+# Resolve the notebook CSV from this script, regardless of Webots' working directory.
+CSV_FILENAME_NOTEBOOK = (
+    Path(__file__).resolve().parents[4]
+    / "Notebook"
+    / "datasets"
+    / Path(CSV_FILENAME).name
+)
 
 FIELDNAMES = [
     "is_scara",
@@ -73,11 +81,13 @@ FIELDNAMES = [
 
 def save_sample_to_csv(q1, q2, q3, x, y, z):
     """
-    Safely append one row to the shared CSV file.
+    Safely append one row to both shared CSV files.
 
     fcntl locking ensures that only one Webots controller
     writes to the file at a time.
     """
+
+    CSV_FILENAME_NOTEBOOK.parent.mkdir(parents=True, exist_ok=True)
 
     with open(
         CSV_FILENAME,
@@ -133,6 +143,62 @@ def save_sample_to_csv(q1, q2, q3, x, y, z):
                 csv_file.fileno(),
                 fcntl.LOCK_UN
             )
+
+    with open(
+        CSV_FILENAME_NOTEBOOK,
+        "a+",
+        newline=""
+    ) as csv_file:
+
+        # Lock file
+        fcntl.flock(
+            csv_file.fileno(),
+            fcntl.LOCK_EX
+        )
+
+        try:
+            # Move to end
+            csv_file.seek(
+                0,
+                os.SEEK_END
+            )
+
+            # Check whether file is empty
+            file_is_empty = (
+                csv_file.tell() == 0
+            )
+
+            writer = csv.DictWriter(
+                csv_file,
+                fieldnames=FIELDNAMES
+            )
+
+            # Only the first robot writes the header
+            if file_is_empty:
+                writer.writeheader()
+
+            writer.writerow({
+                "is_scara": int(IS_SCARA),
+                "is_ned": int(IS_NED),
+                "q1": q1,
+                "q2": q2,
+                "q3": q3,
+                "x": x,
+                "y": y,
+                "z": z,
+            })
+
+            # Make sure row reaches disk
+            csv_file.flush()
+            os.fsync(csv_file.fileno())
+
+        finally:
+            # Unlock file
+            fcntl.flock(
+                csv_file.fileno(),
+                fcntl.LOCK_UN
+            )
+
 
 
 # -------------------------------------------------
@@ -699,7 +765,7 @@ def run(robot):
     )
 
     print(
-        f"Shared CSV       : {CSV_FILENAME}",
+        f"Shared CSV       : {CSV_FILENAME} and {CSV_FILENAME_NOTEBOOK}",
         flush=True
     )
 

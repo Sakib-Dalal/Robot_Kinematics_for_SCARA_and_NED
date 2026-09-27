@@ -5,6 +5,7 @@ import random
 import csv
 import os
 import fcntl
+from pathlib import Path
 
 
 # ============================================================
@@ -112,7 +113,14 @@ IS_NED = False
 # CSV CONFIGURATION
 # ============================================================
 
-CSV_FILENAME = "scara_dataset.csv"
+CSV_FILENAME = "scara_dataset-test.csv"
+# Resolve the notebook CSV from this script, regardless of Webots' working directory.
+CSV_FILENAME_NOTEBOOK = (
+    Path(__file__).resolve().parents[4]
+    / "Notebook"
+    / "datasets"
+    / Path(CSV_FILENAME).name
+)
 
 
 FIELDNAMES = [
@@ -133,14 +141,23 @@ FIELDNAMES = [
 
 def save_sample_to_csv(q1, q2, q3, x, y, z):
     """
-    Safely append one SCARA sample to the shared CSV.
+    Safely append one SCARA sample to both shared CSV files.
 
     File locking prevents multiple SCARA robots from
     writing to the same CSV at the same time.
     """
 
+    CSV_FILENAME_NOTEBOOK.parent.mkdir(parents=True, exist_ok=True)
+
+    for filename in (CSV_FILENAME, CSV_FILENAME_NOTEBOOK):
+        _append_sample_to_csv(filename, q1, q2, q3, x, y, z)
+
+
+def _append_sample_to_csv(filename, q1, q2, q3, x, y, z):
+    """Append a sample while holding this CSV's exclusive file lock."""
+
     with open(
-        CSV_FILENAME,
+        filename,
         "a+",
         newline=""
     ) as csv_file:
@@ -1033,7 +1050,7 @@ def run(robot):
 
     print(
         f"Shared CSV       : "
-        f"{CSV_FILENAME}",
+        f"{CSV_FILENAME} and {CSV_FILENAME_NOTEBOOK}",
         flush=True
     )
 

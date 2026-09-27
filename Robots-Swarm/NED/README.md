@@ -90,9 +90,13 @@ Current rejected-move messages contain the robot name, attempt number, and failu
 ## CSV dataset
 
 The included [ned_dataset.csv](controllers/ned-swarm-data-generator/ned_dataset.csv)
-contains 25,000 data rows. The default filename is `ned_dataset.csv`, relative
-to the controller's working directory, normally the controller folder in Webots.
-All 25 arms append to the same file using an exclusive file lock, with one header:
+contains 25,000 data rows. The configured output filename is `ned_dataset-test.csv`,
+relative to the controller's working directory, normally the controller folder in
+Webots. Each sample is also appended to `Notebook/datasets/ned_dataset-test.csv`
+at the repository root. This second path is resolved from the controller script,
+and its directory is created automatically. Changing `CSV_FILENAME` changes the
+filename used in both locations.
+All 25 arms append to each shared file using an exclusive file lock, with one header:
 
 ```csv
 is_scara,is_ned,q1,q2,q3,x,y,z
@@ -118,8 +122,8 @@ python3 -B -m unittest discover -s Robots-Swarm/NED/tests -v
 ```
 
 These checks use fake devices and do not need Webots. Collection tests can append
-CSV samples in the working directory; use a temporary working directory and an
-absolute test path to isolate them. The suite currently has failures involving
+CSV samples in both output locations; use a temporary copy of the controller and
+tests to isolate them. The suite currently has failures involving
 console/error messages and shutdown motor-command counts. See the
 [recorded test results](../../README.md#tests).
 

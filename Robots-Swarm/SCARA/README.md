@@ -88,7 +88,11 @@ floor. No extra grid or height offset should be subtracted.
 The included [scara_dataset.csv](controllers/scara-swarm-data-generator/scara_dataset.csv)
 contains 25,000 data rows. The default filename is `scara_dataset.csv`, relative
 to the controller's working directory, normally the controller folder in Webots.
-All 25 arms append to the same file using an exclusive file lock, with one header:
+Each sample is also appended to `Notebook/datasets/scara_dataset.csv` at the
+repository root. This second path is resolved from the controller script, and its
+directory is created automatically. Changing `CSV_FILENAME` changes the filename
+used in both locations.
+All 25 arms append to each shared file using an exclusive file lock, with one header:
 
 ```csv
 is_scara,is_ned,q1,q2,q3,x,y,z
@@ -116,8 +120,8 @@ python3 -B -m unittest discover -s Robots-Swarm/SCARA/tests -v
 
 These cover coordinate conversion, movement settling, slide-specific units and
 tolerances, shaft rotation, failure handling, missing devices, and completion.
-Collection tests can append CSV samples in the working directory; use a temporary
-working directory and an absolute test path to isolate them. The suite currently
+Collection tests can append CSV samples in both output locations; use a temporary
+copy of the controller and tests to isolate them. The suite currently
 has failures involving console/error messages and shutdown motor-command counts.
 See the [recorded test results](../../README.md#tests).
 
